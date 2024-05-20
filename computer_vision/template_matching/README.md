@@ -26,7 +26,7 @@ Here, we use a simple example to illustrate 2D cross-correlation.
 
 ![Cross-Correlation](figures/scipy/2d_downsampled_images.png)
 
-![3D Rotational Cross-Correlation](figures/scipy/scipy_max_1.png)
+![3D Rotational Cross-Correlation](figures/scipy/scipy_max_2.png)
 
 ### Cross-Correlation Process GIF
 
