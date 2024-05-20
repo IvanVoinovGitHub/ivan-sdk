@@ -1,10 +1,6 @@
 # 2D Cross-Correlation Visualization
 
-<div style="width: 100%;">
-  <a href="https://github.com/IvanVoinovGitHub/ivan-sdk/blob/main/computer_vision/template_matching/figures/scipy/embedded.svg">
-    <img src="embedded.svg" style="width: 100%;" alt="Click to see the source">
-  </a>
-</div>
+![Link to 3d Plot](https://ivanvoinovgithub.github.io/ivan-sdk/)
 
 This project demonstrates the process of 2D cross-correlation using images. The repository includes code to compute the cross-correlation of a template image with a background image, as well as to visualize this process step-by-step in a GIF. Furthermore, this repository includes an implementation of rotational cross-correlation where the cross correlation is computed iteratively over rotated variants of the template images. Upon doing so, the stack of cross correlation outputs has an aggregate operation of mean and/or max applied. To visualize the results, an interative 3d Topographical representation may be created.
 
