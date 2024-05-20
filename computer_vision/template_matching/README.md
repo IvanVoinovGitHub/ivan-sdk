@@ -1,9 +1,6 @@
 # 2D Cross-Correlation Visualization
 
-<p float="left">
-  <img src="figures/scipy/scipy_max_1.png" width="250" />
-  <img src="figures/scipy/scipy_max_2.png" width="250" /> 
-</p>
+![3D Rotational Cross-Correlation](figures/scipy/scipy_max_1.png)
 
 [Link to Interactable 3D Plot](https://ivanvoinovgithub.github.io/ivan-sdk/)
 
@@ -28,6 +25,8 @@ Here, we use a simple example to illustrate 2D cross-correlation.
 ### Cross-Correlation
 
 ![Cross-Correlation](figures/scipy/2d_downsampled_images.png)
+
+![3D Rotational Cross-Correlation](figures/scipy/scipy_max_1.png)
 
 ### Cross-Correlation Process GIF
 
