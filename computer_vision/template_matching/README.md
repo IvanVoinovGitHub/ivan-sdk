@@ -20,11 +20,11 @@ Here, we use a simple example to illustrate 2D cross-correlation.
 
 ### Cross-Correlation
 
-![Cross-Correlation](omputer_vision/figures/scipy/2d_downsampled_images.png)
+![Cross-Correlation](figures/scipy/2d_downsampled_images.png)
 
 ### Cross-Correlation Process GIF
 
 The following GIF shows the template sliding over the background image, with the cross-correlation values being updated.
 
-![Cross-Correlation Process](computer_vision/figures/scipy/correlation_process.gif)
+![Cross-Correlation Process](figures/scipy/correlation_process.gif)
 
