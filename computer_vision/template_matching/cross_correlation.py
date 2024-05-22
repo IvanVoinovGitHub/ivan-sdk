@@ -4,6 +4,7 @@ from scipy import datasets
 from scipy.ndimage import rotate
 from visualization import plot_max_cross_correlation, plot_3d_topography
 from image_utils import pad_or_crop_image
+from joblib import Parallel, delayed
 
 
 def scipy_example(normalize=True, add_noise=True):
@@ -61,7 +62,7 @@ def cross_correlation(background_image, filter, return_max_loc=False):
     return corr
 
 
-def rotational_cc(background_image, filter, angle=10, return_average=False, return_max=False):
+def rotational_cc(background_image, filter, angle=10, return_average=False, return_max=False, n_jobs=-1):
     """
     Compute the cross-correlation of a filter rotated by a certain angle over a background image.
     
@@ -71,22 +72,23 @@ def rotational_cc(background_image, filter, angle=10, return_average=False, retu
     angle (int): The angle increment for rotating the filter.
     return_average (bool): Whether to return the average of the cross-correlation matrices.
     return_max (bool): Whether to return the maximum of the cross-correlation matrices.
+    n_jobs (int): The number of jobs to run in parallel. -1 means using all processors.
 
     Returns:
-    numpy.ndarray: The resulting cross-correlation matrices.
-    list: The (x, y) locations of the maximum values for each rotation.
+    numpy.ndarray: The resulting cross-correlation matrices or the average/max of them.
+    list: The (x, y) locations of the maximum values for each rotation if return_max_loc is True.
     """
     assert angle < 360
-    filter_angle = 0
-    all_correlations = []
-    max_locs = []
+    angles = np.arange(0, 360, angle)
 
-    while filter_angle < 360:
+    def process_angle(filter_angle):
         rotated_filter = rotate(filter, filter_angle, reshape=True)
-        corr, max_loc = cross_correlation(background_image, rotated_filter, return_max_loc=True)
-        all_correlations.append(corr)
-        max_locs.append(max_loc)
-        filter_angle += angle
+        return cross_correlation(background_image, rotated_filter, return_max_loc=True)
+
+    results = Parallel(n_jobs=n_jobs)(delayed(process_angle)(filter_angle) for filter_angle in angles)
+
+    all_correlations, max_locs = zip(*results)
+    all_correlations = np.array(all_correlations)
 
     if return_average and return_max:
         return np.mean(all_correlations, axis=0), np.max(all_correlations, axis=0)
