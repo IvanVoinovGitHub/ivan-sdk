@@ -3,7 +3,7 @@ from scipy import signal
 from scipy import datasets
 from scipy.ndimage import rotate
 from visualization import plot_max_cross_correlation, plot_3d_topography
-from image_utils import pad_or_crop_image
+from image_utils import normalize_image, noise
 from joblib import Parallel, delayed
 
 
@@ -33,15 +33,13 @@ def scipy_example(normalize=True, add_noise=True):
         filter = np.copy(background_image[300:365, 670:750])
     
     if add_noise:
-        # Initialize random number generator
-        rng = np.random.default_rng()
         # Add Gaussian noise to the background image
-        background_image = background_image + rng.standard_normal(background_image.shape) * 50
+        background_image = noise(background_image)
 
     return background_image, filter
 
 
-def cross_correlation(background_image, filter, return_max_loc=False):
+def cross_correlation(background_image, filter, return_max_loc=False, normalize=False):
     """
     Compute the cross-correlation between a background image and a filter image.
 
@@ -49,20 +47,23 @@ def cross_correlation(background_image, filter, return_max_loc=False):
     - background_image (numpy.ndarray): The background image.
     - filter (numpy.ndarray): The filter image.
     - return_max_loc (bool, optional): Whether to return the location of the maximum correlation. Default is False.
-
+    - normalize (bool, optional): Whether to normalize the background_image and filter. Default is False.
     Returns:
     - corr (numpy.ndarray): The cross-correlation result.
     - x (int): The x-coordinate of the maximum correlation (if return_max_loc=True).
     - y (int): The y-coordinate of the maximum correlation (if return_max_loc=True).
     """
+    if normalize:
+        background_image, filter = normalize_image(background_image), normalize_image(filter)
+
     corr = signal.correlate2d(background_image, filter, boundary='symm', mode='same')
     if return_max_loc:
         y, x = np.unravel_index(np.argmax(corr), corr.shape)
         return corr, (x, y)
-    return corr
+    return corr, None
 
 
-def rotational_cc(background_image, filter, angle=10, return_average=False, return_max=False, n_jobs=-1):
+def rotational_cc(background_image, filter, angle=10, use_normalized=True, return_average=False, return_max=False, n_jobs=-1):
     """
     Compute the cross-correlation of a filter rotated by a certain angle over a background image.
     
@@ -70,6 +71,7 @@ def rotational_cc(background_image, filter, angle=10, return_average=False, retu
     background_image (numpy.ndarray): The larger image.
     filter (numpy.ndarray): The smaller image (filter).
     angle (int): The angle increment for rotating the filter.
+    use_normalized (bool): Whether to use normalized cross-correlation.
     return_average (bool): Whether to return the average of the cross-correlation matrices.
     return_max (bool): Whether to return the maximum of the cross-correlation matrices.
     n_jobs (int): The number of jobs to run in parallel. -1 means using all processors.
@@ -81,9 +83,13 @@ def rotational_cc(background_image, filter, angle=10, return_average=False, retu
     assert angle < 360
     angles = np.arange(0, 360, angle)
 
+    if use_normalized:
+        background_image, filter = normalize_image(background_image), normalize_image(filter)
+
     def process_angle(filter_angle):
         rotated_filter = rotate(filter, filter_angle, reshape=True)
         return cross_correlation(background_image, rotated_filter, return_max_loc=True)
+
 
     results = Parallel(n_jobs=n_jobs)(delayed(process_angle)(filter_angle) for filter_angle in angles)
 
@@ -98,6 +104,21 @@ def rotational_cc(background_image, filter, angle=10, return_average=False, retu
         return np.max(all_correlations, axis=0)
     
     return all_correlations, max_locs
+
+
+def threshold_correlation(correlation, threshold=0.8):
+    """
+    Apply a threshold to a correlation matrix, setting values below the threshold to zero.
+
+    Parameters:
+    - correlation (numpy.ndarray): The input correlation matrix.
+    - threshold (float, optional): The threshold value. Default is 0.8.
+
+    Returns:
+    - correlation (numpy.ndarray): The thresholded correlation matrix.
+    """
+    correlation[correlation < threshold] = 0
+    return correlation
 
 
 if __name__ == "__main__":

@@ -1,5 +1,22 @@
 import numpy as np
 from scipy.ndimage import zoom
+from scipy.ndimage import gaussian_filter
+
+
+def apply_gaussian_blur(image, sigma=1):
+    """
+    Apply Gaussian blur to an image.
+
+    Parameters:
+    - image (numpy.ndarray): The input image.
+    - sigma (float, optional): The standard deviation for Gaussian kernel. Default is 1.
+
+    Returns:
+    - numpy.ndarray: The blurred image.
+    """
+    blurred_image = gaussian_filter(image, sigma=sigma)
+    return blurred_image
+
 
 def downsample_image_scipy(image_array, scale_factor):
     """
@@ -17,6 +34,41 @@ def downsample_image_scipy(image_array, scale_factor):
     # Downsample the image
     downsampled_image = zoom(image_array, zoom_factor, order=3)  # order=3 for cubic interpolation
     return downsampled_image
+
+
+def normalize_image(image):
+    """
+    Normalize an image by subtracting the mean and dividing by the standard deviation 
+    scaled by the image size.
+
+    Parameters:
+    - image (numpy.ndarray): The input image.
+
+    Returns:
+    - numpy.ndarray: The normalized image.
+    """
+    image_mean = np.mean(image)
+    image_std = np.std(image)
+    image = (image - image_mean) / (image_std * image.size)
+    return image
+
+
+def noise(image):
+    """
+    Normalize an image by subtracting the mean and dividing by the standard deviation 
+    scaled by the image size.
+
+    Parameters:
+    - image (numpy.ndarray): The input image.
+
+    Returns:
+    - numpy.ndarray: The normalized image.
+    """
+    # Initialize random number generator
+    rng = np.random.default_rng()
+    # Add Gaussian noise to the background image
+    image = image + rng.standard_normal(image.shape) * 50
+    return image
 
 
 def pad_or_crop_image(image, target_shape):
