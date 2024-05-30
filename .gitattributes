@@ -1,0 +1,24 @@
+# Mark all HTML files as documentation
+*.html linguist-documentation
+
+# Optional: Mark specific directories as containing documentation
+docs/** linguist-documentation
+documentation/** linguist-documentation
+
+# Ensure Python files are recognized properly
+*.py linguist-language=Python
+
+# Exclude third-party libraries
+vendor/** linguist-vendored
+third_party/** linguist-vendored
+
+# Exclude generated files (e.g., minified JS/CSS files)
+*.min.js linguist-generated
+*.min.css linguist-generated
+
+# Optional: Mark specific file types as data
+*.csv linguist-detectable
+*.json linguist-detectable
+
+# Optional: Mark specific directories as data
+data/** linguist-detectable
